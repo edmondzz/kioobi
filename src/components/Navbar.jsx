@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -6,13 +6,24 @@ import {
   IconButton,
   InputBase,
   Avatar,
+  Hidden,
+  Drawer,
+  List,
+  Box,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
+import { Notifications as NotificationIcon } from '@mui/icons-material';
+import { Badge } from '@mui/material';
 import {
   Search as SearchIcon,
   Language as LanIcon,
   Settings as SettingsIcon,
-} from '@mui/icons-material';
+  Menu as MenuIcon} from '@mui/icons-material';
 import { styled, alpha } from '@mui/material/styles';
+import logo from '../assets/images/logo.png';
+import italylogo from '../assets/images/italyflag.png';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -54,39 +65,133 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export const Navbar = () => {
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const searchRef = useRef(null);
+
+  const handleSearchIconClick = () => {
+    setSearchVisible(true);
+  };
+
+  const handleCloseSearch = () => {
+    setSearchVisible(false);
+  };
+
+  const handleDrawerOpen = () => {
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        handleCloseSearch();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [searchRef]);
+
   return (
-    <AppBar position="static">
+    <AppBar sx={{ backgroundColor: '#073461' }}>
       <Toolbar>
+        <Hidden smUp>
+          <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleDrawerOpen}>
+            <MenuIcon />
+          </IconButton>
+        </Hidden>
         <img
-          src="path_to_your_logo"
+          src={logo}
           alt="Logo"
-          style={{ height: '40px', marginRight: '20px' }}
+          style={{ height: '40px', width: '100%', maxWidth: '150px', marginRight: '20px' }}
         />
+        <Box sx={{marginLeft:'4%'}}>
+        <IconButton color="inherit">
+      <Badge 
+        color="error"
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        overlap="circular"
+      >
+        <NotificationIcon  
+          sx={{ 
+            fontSize:'1.2rem',
+            border: '5px solid white',
+            color: '#073461', 
+            backgroundColor: 'white', 
+            borderRadius: '50%', 
+            height:'1.75rem', 
+            width:'1.75rem', 
+          }} 
+        />
+      </Badge>
+    </IconButton>
+        </Box>        
         <div style={{ flexGrow: 1 }} />
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search..."
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </Search>
-        <IconButton color="inherit">
-          <LanIcon />
-        </IconButton>
-        <IconButton color="inherit">
-          <img
-            src="path_to_italy_flag"
-            alt="Italy Flag"
-            style={{ borderRadius: '50%', height: '24px', width: '24px' }}
-          />
-        </IconButton>
-        <IconButton color="inherit">
-          <SettingsIcon />
-        </IconButton>
-        <Typography style={{ marginRight: '10px' }}>Username</Typography>
+        <Hidden xsDown>
+          <div ref={searchRef}>
+            <Search sx={{ display: searchVisible ? 'flex' : 'none' }}>
+              <SearchIconWrapper>
+                <SearchIcon  sx={{height:'1.75rem', width:'1.75rem'}}  />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search..."
+                inputProps={{ 'aria-label': 'search' }}
+              />
+            </Search>
+          </div>
+        </Hidden>
+        {!searchVisible && (
+          <IconButton color="inherit" onClick={handleSearchIconClick}>
+            <SearchIcon  sx={{height:'1.75rem', width:'1.75rem'}}  />
+          </IconButton>
+        )}
+        <Hidden smDown>
+          <IconButton color="inherit">
+            <LanIcon sx={{height:'1.75rem', width:'1.75rem'}}   />
+          </IconButton>
+          <IconButton color="inherit">
+            <img
+              src={italylogo}
+              alt="Italy Flag"
+              style={{
+                borderRadius: '50%',
+                height: '1.75rem',
+                width: '1.75rem',
+                border: '2px solid white',
+              }}
+            />
+          </IconButton>
+          <IconButton color="inherit">
+            <SettingsIcon  sx={{height:'1.75rem', width:'1.75rem'}}    />
+          </IconButton>
+        </Hidden>
+        <Typography style={{ marginRight: '10px' }}>{'Kioobi User'}</Typography>
         <Avatar />
+        <Drawer anchor="left" open={drawerOpen} onClose={handleDrawerClose}>
+          <List>
+            <ListItem button>
+              <ListItemIcon>
+                <LanIcon />
+              </ListItemIcon>
+              <ListItemText primary="Language" />
+            </ListItem>
+            <ListItem button>
+              <ListItemIcon>
+                <SettingsIcon  sx={{height:'1.75rem', width:'1.75rem'}}    />
+              </ListItemIcon>
+              <ListItemText primary="Settings" />
+            </ListItem>
+          </List>
+        </Drawer>
       </Toolbar>
     </AppBar>
   );
