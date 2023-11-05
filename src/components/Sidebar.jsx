@@ -20,13 +20,16 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AdsClickIcon from '@mui/icons-material/AdsClick';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useNavigate } from 'react-router-dom';
+
 
 export const Sidebar = ({ open, handleDrawerClose }) => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const drawerRef = useRef(null);
+    const navigate = useNavigate(); 
 
     const menuItems = [
-      { icon: <DashboardIcon />, text: 'Dashboard' },
+      { icon: <DashboardIcon />, text: 'Dashboard', onClick: () => handleNavigation('/dashboard') },
       { icon: <ContactsIcon />, text: 'Contacts' },
       { icon: <CollaboratorsIcon />, text: 'Collaborators' },
       { icon: <SupervisorAccountIcon />, text: 'Administration' },
@@ -35,6 +38,12 @@ export const Sidebar = ({ open, handleDrawerClose }) => {
       { icon: <AdsClickIcon   />, text:'Marketing' },
       { icon: <SettingsIcon />, text: 'Settings' },
     ];
+
+    const handleNavigation = (path) => {
+      navigate(path);
+      handleDrawerClose();
+      setIsCollapsed(true);
+  };
 
     useEffect(() => {
       const expandDrawer = () => {
@@ -63,6 +72,7 @@ export const Sidebar = ({ open, handleDrawerClose }) => {
             top: '64px',  
             backgroundColor: 'transparent', 
             boxShadow: 'none', 
+            zIndex:20
           },
         }}
         anchor="left"
@@ -88,7 +98,7 @@ export const Sidebar = ({ open, handleDrawerClose }) => {
         </Box>
         <List>
           {menuItems.map((item, index) => (
-            <ListItem button key={index}>
+            <ListItem button key={index} onClick={item.onClick}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               {!isCollapsed && <ListItemText primary={item.text} />}
             </ListItem>
