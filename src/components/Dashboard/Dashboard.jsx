@@ -32,12 +32,19 @@ export const Dashboard = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    setForm(prevForm => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  
     let isValid = true;
     if (name === 'ageFrom' || name === 'ageTo') {
       isValid = validateNumberInput(value, name, 0, 99);
-    } else {
+    } else if (name === 'tax' || name === 'maxDays') {
       isValid = validateNumberInput(value, name);
     }
+  
     if (isValid) {
       setForm({
         ...form,
@@ -45,24 +52,29 @@ export const Dashboard = () => {
       });
     }
   };
-
-  const validateNumberInput = (value, field, min = 0, max = Infinity) => {
-    const numberValue = value ? parseInt(value, 10) : '';
-    const newErrors = { ...errors };
   
-    if (value === '') {
-      newErrors[field] = 'This field is required';
-    } else if (isNaN(numberValue)) {
-      newErrors[field] = 'Only numbers are allowed';
-    } else if (numberValue < min || numberValue > max) {
-      newErrors[field] = `Value must be between ${min} and ${max}`;
-    } else {
-      delete newErrors[field];
+  const validateNumberInput = (value, field, min = 0, max = Infinity) => {
+    const isNumeric = value === '' || (!isNaN(value) && !isNaN(parseFloat(value)));
+
+    if (!isNumeric) {
+      setErrors(prevErrors => ({ ...prevErrors, [field]: 'Only numbers are allowed' }));
+      return false;
     }
   
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    const numberValue = parseInt(value, 10);
+  
+    if (numberValue < min || numberValue > max) {
+      setErrors(prevErrors => ({ ...prevErrors, [field]: `Value must be between ${min} and ${max}` }));
+      return false;
+    } else {
+      setErrors(prevErrors => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[field];
+        return newErrors;
+      });
+      return true;
+    }
+  };  
   
   const handleSave = () => {
     let newErrors = { ...errors };
